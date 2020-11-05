@@ -7,7 +7,7 @@ output:
 theme: united
 ---
 
-### [Preliminary schedule](https://rsbivand.github.io/ECS530_h20/plan_ecs530_h20_update.html)
+### [Updated schedule](https://rsbivand.github.io/ECS530_h20/plan_ecs530_h20_update.html)
 
 ### Monday AM [workshop document](https://rsbivand.github.io/ECS530_h20/ECS530_I.html)
 
