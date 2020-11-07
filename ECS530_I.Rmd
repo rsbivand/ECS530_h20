@@ -1,7 +1,7 @@
 ---
 title: "ECS530: (I) Representation of spatial data"
 author: "Roger Bivand"
-date: "Monday 9 November 2020, 09:15-11.00, aud. C"
+date: "Monday 9 November 2020, 11:00-12:30"
 output: 
   html_document:
     toc: true
@@ -41,11 +41,11 @@ Script and data at https://github.com/rsbivand/ECS530_h20/raw/master/ECS530_I.zi
 
 - 10/11 (III) Coordinate reference systems, (IV) Visualization
 
-- 11/11 (V) R/GIS interfaces, *project surgery*
+- 11/11 (VI) Spatial autocorrelation, *project surgery*
 
-- 12/11 (VI) Spatial autocorrelation, (VII) Spatial regression
+- 12/11 (VII) Spatial regression, (VIII) Spatial multilevel regression
 
-- 13/11 (VIII) Interpolation, point processes, *project surgery*
+- 13/11 (IX) Interpolation, point processes, *project surgery*, *presentation*
 
 - 14/11 *Presentations*
 
@@ -64,11 +64,11 @@ Spatial regression: model estimation and handling split out from **spdep** to **
 
 ## Session I
 
-- 09:15-09:45 Course startup, practical matters, background
+- 11:00-11:30 Background
 
-- 09:45-10:30 Vector representation: **sf** replaces **sp**, **rgeos** and **rgdal**: vector
+- 11:30-12:00 Vector representation: **sf** replaces **sp**, **rgeos** and **rgdal**: vector
 
-- 10:30-11:00 Raster representation: **stars**/**sf** replace **sp** and **rgdal**: **raster** remains for now
+- 12:00-12:30 Raster representation: **stars**/**sf** replace **sp** and **rgdal**: **raster** remains for now
 
 # R-Spatial: getting to here and now
 
@@ -164,7 +164,7 @@ The **rgeos** package provided vector topological predicates and operations typi
 
 ### ASDAR first edition
 
-By the publication of ASDAR [@asdar1], a few packages not written or maintained by the book authors and their nearest collaborators had begun to use **sp** classes. By the publication of the second edition [@asdar2], we had seen that the number of packages depending on **sp**, importing from and suggesting it (in CRAN terminology for levels of dependency) had grown strongly. In late 2014, [@de-vries14] looked at CRAN package clusters from a page rank graph, and found a clear spatial cluster that we had not expected. This cluster is from late November 2019:
+By the publication of ASDAR [@asdar1], a few packages not written or maintained by the book authors and their nearest collaborators had begun to use **sp** classes. By the publication of the second edition [@asdar2], we had seen that the number of packages depending on **sp**, importing from and suggesting it (in CRAN terminology for levels of dependency) had grown strongly. In late 2014, [@de-vries14] looked at CRAN package clusters from a page rank graph, and found a clear spatial cluster that we had not expected. This cluster is from early October 2020:
 
 ```{r, echo = FALSE, eval=FALSE} 
 BCrepos <- BiocManager::repositories()

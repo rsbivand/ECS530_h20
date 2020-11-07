@@ -1,7 +1,7 @@
 ---
 title: "ECS530: (II) Import/export of spatial data"
 author: "Roger Bivand"
-date: "Monday 9 November 2020, 13:15-15.00, aud. C"
+date: "Monday 9 November 2020, 13:00-14:30"
 output: 
   html_document:
     toc: true
@@ -39,24 +39,24 @@ Script and data at https://github.com/rsbivand/ECS530_h20/raw/master/ECS530_II.z
 
 - 9/11 (I) Spatial data representation, **(II) Support+topology, input/output**
 
-- 10/11 (III) Coordinate reference systems, (IV) visualization
+- 10/11 (III) Coordinate reference systems, (IV) Visualization
 
-- 11/11 (V) R/GIS interfaces, *project surgery*
+- 11/11 (VI) Spatial autocorrelation, *project surgery*
 
-- 12/11 (VI) Spatial autocorrelation, (VII) regression
+- 12/11 (VII) Spatial regression, (VIII) Spatial multilevel regression
 
-- 13/11 (VIII) Interpolation, point processes, *project surgery*
+- 13/11 (IX) Interpolation, point processes, *project surgery*, *presentation*
 
 - 14/11 *Presentations*
 
 
 ## Session II
 
-- 13:15-13:45 Support
+- 13:00-13:30 Support
 
-- 13:45-14:15 Topology operations
+- 13:30-14:00 Topology operations
 
-- 14:15-15:00 Input/output
+- 14:00-14:30 Input/output
 
 
 # Support
@@ -338,8 +338,9 @@ by(deaths$Num_Css, deaths$b_nearer, sum)
 
 ## Recent challenges
 
+Just two days ago, we see https://github.com/r-spatial/sf/issues/1510#issuecomment-723397556, which concerns topological operations subject to varying behaviour depending on the underlying version of GEOS. https://github.com/r-spatial/sf/issues/794#issuecomment-712945929 is also an interesting thread. The mention of OverlayNG refers to changes in JTS upstream of GEOS, and GEOS 3.9.0 will most likely use this topology engine rather than the existing one. Many of the problems of computational geommetry are related to precision problems, that is to the difficulty of ensuring that two double-precision numbers are seen as identical. For many years, the preferred solution is to snap 2D points to a very fine grid, where the fineness can be tuned to filter out numerical fuzz coming from double precision representation problems without identifying different points as identical.
 
-A recent upgrade of GEOS from 3.7.1 to 3.7.2 on a CRAN test server led to failures in three packages using **rgeos** for topological operations. **rgeos** 0.4-3 set the `checkValidity=`  argument to for example `gIntersection()` to FALSE (TRUE threw an error if either geometry was invalid). An [issue](https://github.com/r-spatial/sf/issues/1121) was opened on the **sf** github repository (**rgeos** is developed on R-Forge). The test objects (from an example from **inlmisc**) will be used here:
+A slightly older example: an upgrade of GEOS from 3.7.1 to 3.7.2 on a CRAN test server led to failures in three packages using **rgeos** for topological operations. **rgeos** 0.4-3 set the `checkValidity=`  argument to for example `gIntersection()` to FALSE (TRUE threw an error if either geometry was invalid). An [issue](https://github.com/r-spatial/sf/issues/1121) was opened on the **sf** github repository (**rgeos** is developed on R-Forge). The test objects (from an example from **inlmisc**) will be used here:
 
 ```{r, echo=TRUE}
 rgeos::version_GEOS0()
@@ -357,7 +358,7 @@ rgeos::gIsValid(yy, byid=TRUE, reason=TRUE)
 sf::sf_extSoftVersion()
 ```
 
-The same underlyng GEOS code is used in **sf**:
+The same underlying GEOS code is used in **sf**:
 
 ```{r, echo=TRUE}
 sf::st_is_valid(sf::st_as_sf(yy), reason=TRUE)
@@ -409,8 +410,7 @@ The actual cause was the use of an ESRI/shapefile style/understanding of the sel
 
 The change in GEOS behaviour was not planned as such, but has consequences, fortunately detected because CRAN checks by default much more than say Travis by default. Zero-width buffering will not repair all cases of invalidity, but does work here.
 
-
-
+Note that GEOS 3.8 introduced a function to try to make invalid geometries valid, which has **sf** and **rgeos** bindings.
 
 # Input/output
 

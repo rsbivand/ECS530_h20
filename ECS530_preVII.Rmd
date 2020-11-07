@@ -1,0 +1,440 @@
+---
+title: "ECS530: (preVII) Spatial econometrics"
+author: "Roger Bivand"
+date: "Wednesday 11 November 2020, 13:00-14.00"
+output: 
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
+    toc_depth: 2
+theme: united
+bibliography: book.bib
+link-citations: yes
+---
+
+
+### Copyright
+
+All the material presented here, to the extent it is original, is available under [CC-BY-SA](https://creativecommons.org/licenses/by-sa/4.0/). Parts build on joint tutorials with Edzer Pebesma.
+
+## Schedule
+
+- 9/11 (I) Spatial data representation, (II) Support+topology, input/output
+
+- 10/11 (III) Coordinate reference systems, (IV) Visualization
+
+- 11/11 (VI) Spatial autocorrelation, **(preVII) Introducing Spatial Econometrics**, *project surgery*
+
+- 12/11 (VII) Spatial regression, (VIII) Spatial multilevel regression
+
+- 13/11 (IX) Interpolation, point processes, *project surgery*, *presentation*
+
+- 14/11 *Presentations*
+
+
+## Session preVII
+
+- 13:00-14:00 Introducing Spatial Econometrics
+
+## Antecedents
+
+In the same way that [@fujitaetal:99] begin their study of the
+spatial economy by looking at the antecedents of their subject, it
+is helpful to place spatial econometrics in its temporal and academic
+context. This context is sufficiently different from the contemporary
+setting that it may be hard to grasp the background for many of the
+features of spatial econometrics that came into being during its earlier
+years. Indeed, the ranges of topics that were studied in economics in
+the 1960's and 1970's differ markedly from those in focus today. If we
+can sketch the context within which spatial econometrics was created,
+and its methods developed, we should be able to illuminate choices
+made then which influence our understanding and application of spatial
+econometric methods.
+
+Critics of the practice of spatial econometrics, such as
+[@gibbons+overman:12], appear to overlook these antecedents, and
+consequently judge the potential of the field on a partial, perhaps
+anachronistic, understanding, viewing phenomena with a history in
+ahistorical way. Since we are attempting to provide an introduction to
+applied spatial econometrics, we need to throw light on the original
+motivations and concerns of the first scholars engaged in the field.
+[@anselin:10] indicates clearly and repeatedly [@anselin:88;
+anselin:06; anselin:10a] that we should acknowledge *Spatial
+Econometrics* by [@paelinck+klaassen:79] of the Netherlands Economic
+Institute as our starting point, and so celebrates thirty years of
+spatial econometrics in 2009. This firm confirmation of the importance
+of Jean Paelinck's contributions as scholar and community-builder
+is fully justified. We should then turn to the motivations given in
+[@paelinck+klaassen:79] to indicate which contextual factors were
+of importance at that time, and the breadth of the academic communities
+with which they were in contact.
+
+In a recent short commentary, [@paelinck:13] recalls his
+conviction, expressed in 1967, that "early econometric exercises $\ldots$
+relating only variables posessing the same regional index $\ldots$ were
+inadequate to represent the correct spatial workings of the economy,
+which would then be reflected in the policy outcomes." A year before,
+[@paelinck:12] points to salient isomorphisms linking
+spatial regression models, simultaneous equation models and input-output
+models; these were known of and discussed in the early formative period
+of spatial econometrics. We will return in subsequent chapters to the
+ways in which spatial regression models may be specified, but for now,
+a simple presentation of these isomorphisms as perceived in the early
+period is sufficient:
+
+\[
+{\mathbf y} = {\mathbf A}{\mathbf y} + {\mathbf X}{\mathbf b} + {\mathbf \varepsilon}
+\]
+
+is a spatial regression model where ${\mathbf A}$ is a matrix expressing
+the mutual first order spatial dependencies between regions --- the
+similarity of this form and the Koyck distributed lag model is striking
+[@koyck:54; @klein:58; @griliches:67};
+
+\[
+{\mathbf A}{\mathbf y} + {\mathbf X}{\mathbf b} = {\mathbf \varepsilon}
+\]
+
+is a simultaneous equation model where ${\mathbf A}$ is a matrix expressing the dependencies between the equations; and:
+
+\[
+{\mathbf y} = {\mathbf A}{\mathbf y} + {\mathbf f}
+\]
+
+is an input-output model where ${\mathbf A}$ is a matrix of sectoral 
+input-output coefficients, and ${\mathbf f}$ is final demand.
+
+Input-output models, simultaneous equation models, and the importance of
+policy outcomes were all known intimately at the Netherlands Economic
+Institute at this time, and elsewhere among applied economists. The
+isomporhisms flowed from the known to the unknown, from the stuff of
+contemporary research and policy advice to doubts about the calibration
+of aspatial models, and on to what became termed spatial econometrics. If
+we compare these topics with those described for Regional Science by
+[@boyce:04], we can see the outlines of research priorities at the
+time: including urban and regional models for planning, regional and
+interregional input-output models, transport and location models. During
+the 1960s and 1970s, many of these models were enhanced --- matching needs
+for policy advice --- to cover environmental questions, adding natural
+resources as inputs and pollution to outputs. Paelinck's co-author in a
+key paper in spatial econometrics [@hordijk+paelinck:76], went on
+to work in environmental management and research.
+
+Reading [@paelinck+klaassen:79], we see that the programme
+of research into the space economy undertaken at the Netherlands Economic
+Institute led first to the publication of [@paelinck+nijkamp:75],
+and then to [@klaassenetal:79], published in the same year as
+**Spatial Econometrics**. All three books were published in the
+same series and appear to reflect the core concerns of economists at
+the Institute doing reasearch on regionalised national macro-economic
+models. The direct link to Jan Tinbergen is evident in the account
+of the context of economic research in the Netherlands given by
+[@theil:64]. If we take Paelinck at his word, he and
+his colleagues were aware that an aspatial regionalisation of national
+accounts, of input-output models, or transport models, might prejudice
+policy advice and outcomes through inadequate and inappropriate
+calibration.
+
+[@klaassenetal:79] is mainly concerned with model construction, while
+about a third of [@paelinck+nijkamp:75] is devoted to input-output
+analysis. Both books show sustained concern for economic measurement,
+especially of national accounts data, intersectoral transactions, and many
+other topics. Considerable attention is also paid to the data collection
+units, be they sectors or regions.  The need to attempt to define regions
+that match the underlying economic realities was recognised clearly, and
+a key part of [@paelinck+nijkamp:75] is devoted to regionalisation,
+and the distinction between functional regions and homogeneous regional
+classifications is made. In the motivation for spatial econometric
+models given in [@paelinck+klaassen:79], consumption
+and investment in a region are modelled as depending on income both in
+the region itself and in its contiguous neighbours, termed a "spatial
+income-generating model." It became important to be able to calibrate
+planning models of this kind to provide indications of the possible
+outcomes of alternative policy choices, hence the need for spatial
+econometrics.
+
+Economic planning was widespread in Europe at the time, and was also
+central in the development of Regional Science, in particular input-output
+models; as [@boyce:04] recounts, Walter Isard worked closely with
+Wassily Leontief. Operational and planning motivations for applied
+economics were unquestioned, as economists in the post-war period saw
+their role, beyond educating young economists, as providing rational
+foundations for economic policy. It is worth noting that Jean Paelinck
+participated actively in the Association de Science Régionale De Langue
+Française, becoming president in 1973--1976. The first president of
+the association was François Perroux, who had founded it with Walter
+Isard in 1961 [@baillyetal:12].
+
+Until the 1980s, it was not at all unusual to publish original
+results in other languages than English. French spatial economic
+research, for example [@ponsard:83], while making little impact
+in Anglophone countries, was widely used in teaching and research
+elsewhere [@billot+thisse:92]. They contrast, though, the "word
+wizardry of François Perroux with the rigour of Claude Ponsard"
+[@billot+thisse:92], echoing the views expressed by
+[@dreze:64] with regard to the work of Perroux. Even
+if we accept that "word wizardry" deserves more rigour and recasting
+in normative and empirically testable forms, it is also part of the
+context within which spatial econometrics came into being. A reading of
+[@perroux:50] is worthwhile,
+because it not only gives the reader a vignette of the context in
+the post-war period, but also provides a discussion of economic space,
+as opposed to banal, unreflected space --- mere position --- that has
+largely disappeared from our considerations.
+
+The title of the journal: *Regional and Urban Economics, Operational Methods* , founded by Jean Paelinck in 1971, and which
+was renamed as *Regional Science and Urban Economics* in 1975
+[@boyce:04], points to the perceived importance of
+"operational methods", a version of the term "operational theory
+and method" used in the title of [@paelinck+nijkamp:75]. Spatial
+econometrics does not seem to have come into being as a set of estimation
+techniques as such, as perhaps we might think today, but rather as
+an approach addressing open research questions both in space economy
+and in the enhancement of interregional models to be used in offering
+policy advice.
+
+Were motivations of this kind common during the 1960s and early
+1970s? Not only was the spread of Regional Science extensive and
+firmly established [@boyce:04], but public bodies were concerned
+to regionalise economic measurement and policy advice [@graham+romans:71]. In Britain, *Environment
+and Planning* was started in 1969 with Alan Wilson as founding
+editor and published by Pion; he was assistant director at the
+Centre for Environmental Studies at this time before moving to
+the University of Leeds. In a recently published lecture series,
+[@wilson:12] cites [@paelinck+nijkamp:75] as
+giving principles for contributions from economics to urban and regional
+analysis [@wilson:00].  The papers presented at
+annual Regional Science meetings were published in a series by Pion; the
+first number in the series included contributions by [@granger:69]
+and [@cliff+ord:69].
+
+In a contribution to a panel session at the 2006 annual meeting of
+the American Association of Geographers (co-panelists Luc Anselin
+and Daniel Griffith), Keith Ord pointed to the continued relevance
+of Granger's remarks at the meeting almost fourty years earlier
+[@ord:10]; we will return to these concerns below. As
+noted by [@bivand:08], communities of researchers working
+in and near mathematical and theoretical geography was more integrated
+in the pre-internet and pre-photocopier age than one might expect, with
+duplicated working papers prepared using stencils circulating rapidly
+between collaborating academic centres. Knowledge of the preliminary
+results of other researchers then fed through into rapid innovation
+in an exciting climate for those with access to these meetings and
+working papers.
+
+There was considerable overlap between quantitative geography and
+regional science, so that work like [@cliff+ord:69] is cited by
+[@hordijk:74], and was certainly known at the Netherlands Economic
+Institute several years earlier. Although it has not been possible
+to find out who participated in the August 1968 conference of the
+British and Irish Section of the Regional Science Association at which
+[@cliff+ord:69] was read, it was not unusual for members of other
+sections to be present, and to return home with bundles of duplicated
+papers. Up to the 1990s, presenters at conferences handed out copies of
+their papers, and conference participants posted home parcels of these
+hand-outs, indexed using the conference programme.
+
+Leslie Hepple was among the more thorough scholars working on the
+underpinnings of spatial econometrics prior to the publication of
+[@paelinck+klaassen:79]. His wide-ranging review [@hepple:74]
+is cited by [@bartels+hordijk:77], again demonstrating the close
+links between those working in this field. We will be returning to
+the review paper, and to [@hepple:76], which studies methods of
+estimation for spatial econometrics models in some depth, building on
+and extending [@ord:75].
+
+[@hepple:74], like [@cliff+ord:73], saw no distinction between
+spatial statistics and the antecedents to spatial econometrics. Obviously,
+spatial econometrics was strongly influenced by the research tasks
+undertaken by regional and urban economists and regional scientists. As
+[@griffith+paelinck:07] point out, spatial statistics and
+spatial econometrics continue to share most topics of interests, with each
+also possessing shorter lists of topics that have been of less concern to
+the other. They advocate a "non-standard" spatial econometrics, which
+is inclusive to wider concerns. It seems appropriate in this context to
+mention the somewhat heterodox position taken by [@mcmillen:10],
+who draws attention to the crucial issue of functional form, which he
+argues may well lie behind observed spatial autocorrelation; we will
+return to this in later chapters.
+
+## Implementing methods in econometrics
+
+Having described some of the contextual issues suggesting how specific
+research concerns influenced how spatial econometrics came into being,
+it may now be helpful to turn to broader econometrics. It will become
+clearer that the research concerns of broader econometrics at that time,
+apart from spatial interdependence and interaction, were generally
+similar to those of spatial econometrics. Indeed, econometrics and the
+provision of national economic data for analysis, modelling, and for the
+provision of policy advice were intimately linked, as were mathematical
+economics and econometrics. The place of econometrics within economics, as
+[@sandmo:11] shows, was a matter of some contention
+from the very beginning.
+
+Both [@morgan:90] and [@qin:93]
+conclude their historical accounts of the beginnings of econometrics
+in pessimistic ways. Econometrics had begun by addressing a range of
+research topics, including the expression of economic theories in
+mathematical form, the building of operational econometric models,
+the exploration of testing and estimation techniques, and statistical
+data preparation. "By the 1950s the founding ideal of econometrics, the
+union of mathematical and statistical economics into a truly synthetic
+economics, had collapsed" [@morgan:90]. The flavour of
+[@paelinck+klaassen:79] seems somewhat anachronistic compared to late
+1950s and early 1960s "textbook" econometrics. One might conclude that
+while spatial econometrics was aligned with Haavelmo's probabilistic
+revolution [@qin:93], it retained, like Haavelmo,
+adherence to the founding ideals [@bjerkholt:07;
+hendry+johansen:12].
+
+It appears from the research programme culminating in
+[@paelinck+klaassen:79] that spatial econometrics could be seen as
+"creative juggling in which theory and data came together to find out
+about the real world" [@morgan:90]. [@morgan:90] and
+[@qin:93] indicate that, from the 1950s, the depth of econometrics
+was flattened , with "[D]ata taken less seriously as a source of ideas
+and information for econometric models, and the theory-development role
+of applied econometrics was downgraded to the theory-testing role"
+[@morgan:90]. The history of econometric ideas is
+of assistance in illuminating key components of what has come to be the
+practice of spatial econometrics:
+
+> With Haavelmo, the profession seemed to have arrived at a consensus:
+a statistical model of plural economic causes and errors in the
+relations. But in the meantime, the old scientific ideal had also changed,
+from a deterministic to a probabilistic view of the way the world
+worked. This left the explanatory level of Haavelmo's model open to new
+doubts. Was it really based on underlying random behaviour of the economic
+variables (as in contemporary evolutionary biology and quantum mechanics),
+or was it, after all, only a convenient way of formally dealing with
+inference in the non-experimental framework? [@morgan:90].
+
+The study of the history of econometrics has been actively promoted
+by David Hendry. It is desirable to motivate our choice of the term
+"applied spatial econometrics"; to do this we turn to [@hendry:09],
+the introductory chapter in the "Applied Econometrics" volume of the
+Palgrave Handbook of Econometrics. If we can shed light on how "applied
+econometrics" is understood, then we may be able to provide adequate
+underpinnings for what is to follow. This, however, turns out to be hard
+to do, as Hendry challenges simple definitions:
+
+> At the superficial level, "Applied Econometrics" is "any application
+of econometrics, as distinct from theoretical econometrics.  $\ldots$ Some
+applied econometricians would include any applications involving analyses
+of "real economic data" by econometric methods, making "Applied
+econometrics" synonymous with empirical econometrics. However, such
+a view leads to demarcation difficulties from applied economics on the
+one hand, and applied statistics on the other.  $\ldots$ Outsiders might
+have thought that "Applied Econometrics" was just the application of
+econometrics to data, but that is definitely not so $\ldots$ Rather, the
+notion of mutual penetration dominates, but as a one-way street. Economic
+theory comes first, almost mandatorially. Perhaps this just arises from
+a false view of science, namely that theory precedes evidence, $\ldots$
+[@hendry:09].
+
+He butresses his views using the history of econometrics to caricature
+empirical econometric research in the light of his view that applied
+economics has a "false" view of science:
+
+> $\ldots$ cumulative critiques $\ldots$ led to an almost monolithic
+approach to empirical econometric research: first postulate an
+individualistic, intertemporal optimization theory; next derive a
+model therefrom; third, find data with the same names as the theory
+variables; then select a recipe from the econometrics cookbook that
+appropriately blends the model and the data, or if necessary, develop
+another estimator; finally report the newly forged economic law.  $\ldots$
+Instead of progress, we find fashions, cycles and "schools" in research.
+$\ldots$ At about the same time that *a priori* theory-based
+econometrics became dominant, data measurement and quality issues
+were also relegated as a central component of empirical publications
+[@hendry:09].
+
+Hendry's scepticism with regard to the practice of applied econometrics
+finds ample support in the proposal by [@andersonetal:08] that
+econometric results be acknowledged only to the extent that they
+are open for replication. They point out that theoretical results in
+economics (and econometrics) are much easier to check, and that referees
+routinely question formal proofs, because the relevant equations
+are included in journal submissions. Further contributions to the
+discussion on reproducible econometric research results have been made
+by [@koenker+zeileis:09] and [@yalta+yalta:10]. As we will see
+later on, spatial econometrics is in the fortunate position of having
+relatively many open source software implementations.
+
+In order to complete this brief review of the antecedents to spatial
+econometrics, it makes sense to point to descriptions of the
+development of econometric software. Both in a handbook chapter
+[@renfro:09a], and in book form [@renfro:09], we can benefit
+from Charles Renfro's experience and insights. He does admit to
+expressing distinct views, but they are backed both by experience and
+evidence. One concern is that econometric software development has been
+seen less and less as academic achievement, but rather as a practical,
+technical concern only:
+
+> To take an interest in programming and econometric software development
+would seem therefore to be the graveyard of any academic economist’s
+professional ambitions, justifiable only as a minimally diverting hobby,
+spoken of only to trusted colleagues. [@renfro:09]
+
+He is not alone in drawing attention to the view that economics suffers
+from a skewed distribution of attention to the actual components
+of knowledge creation, placing theory firmly in first place, with
+commensurately much less weight given to measurement, data preparation
+and programming. As he says, applied economics researchers would benefit
+from a more even distribution of academic acknowledgement to those who, in
+terms of the division of labour within the discipline, develop software:
+
+> As a software developer, the econometrician who incorporates new
+theoretical econometric results may therefore be faced with the
+often-difficult task of not only evaluating the relevance, hence the
+operational validity of the theoretical solution, but also implementing
+these results in a way that is contextually meaningful. This operationally
+focused econometrician consequently not only needs to understand the
+theoretical advances that are made but also to exercise independent
+judgment in the numerical implementation of new techniques, for in
+fact neither are blueprints provided nor are the building blocks
+prefabricated. [@renfro:09]
+
+Since this division of labour is arguably more uneven in economics than
+in other subjects, it leads to the restriction of research questions that
+applied economists can address to those that match estimation functions
+available in software implementations for which they have licences and
+which they know how to use:
+
+> One of the consequences of this specialization has been to introduce
+an element of user dependence, now grown to a sufficiently great degree
+that for many economists whichever set of econometric operations can be
+performed by their choice of program or programs has for them in effect
+become the universal set. [@renfro:09]
+
+This deplorable situation has arisen over time, and certainly did not
+characterise the research context when spatial econometrics came into
+being. At that time, graduate students simply regarded learning to
+program, often in Fortran, as an essential part of their preparation as
+researchers. This meant that researchers were moch "closer" to their
+tools, and could adapt them to suit their research needs. Nowadays,
+few economists feel confident as programmers despite the fact that
+modern high-level languages such as Matlab, Python, or R are easy to
+learn and very flexible, and many econometric and statistical software
+applications offer scripting languages (such as SAS, Stata, SPSS and
+specifically econometric programs).
+
+> The links between methodological advance and the evolution of spatial
+economic theory are only touched upon in [@anselin:10] --- in
+that sense, his review is concerned with theoretical *spatial
+econometrics* (statistical methods) rather than applied *spatial
+econometrics* (economic models). Over time, applied *spatial
+econometrics* has tended to become synonymous with *regression
+modelling* applied to spatial data where *spatial autocorrelation*
+and spatial *heterogeneity* in particular are present and need to
+be accommodated. Its treatment of spatial effects reflects the growing
+"legitimization of space and geography" [@anselin:10]
+in the quantitative social sciences more generally. But the subfield
+perhaps needs to be more than that if it is to justify its separate
+identity from spatial statistics and fully justify its "econometric"
+label. A close link with mainstream economic theory would seem essential
+in order to provide economic legitimacy to models (systems of equations)
+within which geography and spatial relationships have been, in economic
+terms, rigorously embedded [@fingleton:00]. [@haining:14]

@@ -19,7 +19,7 @@ theme: united
 
 ### Wednesday AM [workshop document](https://rsbivand.github.io/ECS530_h20/ECS530_VI.html)
 
-### Wednesday GIS [workshop document](https://rsbivand.github.io/ECS530_h20/ECS530_V.html)
+### Wednesday PM [workshop document](https://rsbivand.github.io/ECS530_h20/ECS530_preVII.html)
 
 ### Thursday AM [workshop document](https://rsbivand.github.io/ECS530_h20/ECS530_VII.html)
 
