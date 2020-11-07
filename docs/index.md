@@ -23,7 +23,9 @@ theme: united
 
 ### Thursday AM [workshop document](https://rsbivand.github.io/ECS530_h20/ECS530_VII.html)
 
-### Thursday PM [workshop document](https://rsbivand.github.io/ECS530_h20/ECS530_VIII.html)
+### Thursday PM1 [workshop document](https://rsbivand.github.io/ECS530_h20/ECS530_preVIII.html)
+
+### Thursday PM2 [workshop document](https://rsbivand.github.io/ECS530_h20/ECS530_VIII.html)
 
 ### Friday AM [workshop document](https://rsbivand.github.io/ECS530_h20/ECS530_IX.html)
 

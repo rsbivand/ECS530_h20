@@ -1,0 +1,402 @@
+---
+title: "ECS530: (preVIII) Spatial econometrics"
+author: "Roger Bivand"
+date: "Thursday 12 November 2020, 12:30-13.30"
+output: 
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
+    toc_depth: 2
+theme: united
+bibliography: ersa16.bib
+link-citations: yes
+---
+
+
+```{r setup0, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Copyright
+
+All the material presented here, to the extent it is original, is available under [CC-BY-SA](https://creativecommons.org/licenses/by-sa/4.0/). Parts build on joint tutorials with Edzer Pebesma.
+
+### Required current contributed CRAN packages:
+
+I am running R 4.0.3, with recent `update.packages()`.
+
+```{r, echo=TRUE}
+needed <- c("sphet", "spatialreg", "spdep", "spData", "sf", "HSAR", "sp")
+```
+
+### Script
+
+Script and data at https://github.com/rsbivand/ECS530_h19/raw/master/ECS530_preVIII.zip. Download to suitable location, unzip and use as basis.
+
+### Schedule
+
+- 9/11 (I) Spatial data representation, (II) Support+topology, input/output
+
+- 10/11 (III) Coordinate reference systems, (IV) Visualization
+
+- 11/11 (VI) Spatial autocorrelation, *project surgery*
+
+- 12/11 (VII) Spatial regression, **(preVIII) Spatial econometrics**, (VIII) Spatial multilevel regression
+
+- 13/11 (IX) Interpolation, point processes, *project surgery*, *presentation*
+
+- 14/11 *Presentations*
+
+
+## Session VIII
+
+- 12:30-13:30 Spatial econometrics
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Spatial econometrics software in R: environment
+
+- Beyond software functionality, the existence of communities of interest becomes important
+
+- These extend the choices available, and bring in points of view across applied scientific domains and in modern computation, for example interworking across C++, Python and Julia with R
+
+- For example, the **HSAR** package [@dong+harris:15; dongetal:15] uses C++ extensively, rather than R sparse matrix packages
+
+- The \code{slm} model being introduced into **INLA** for non-MCMC Bayesian inference is another example of cooperation with other applied statisticians
+
+- The R packages **spatialreg**, **sphet** [@bivand+piras:15] and for spatial panel models **splm** [@millo+piras:12] provide implementations of many model fitting functions for Gaussian dependent variables
+
+- These also use shared methods in **spdep** for computing impacts, and for MC inference on impacts
+
+- There are a range of fitting functions for non-Gaussian dependent variables in **McSpatial**, **spatialprobit** [@wilhelm-matos:2013] and **ProbitSpatial**, and these are also available using the ´slm´ model being introduced into **INLA**
+
+- Work is continuing on providing Bayesian inference functions, through MCMC and otherwise; the **HSAR** package is an example
+
+### Beijing leased residential land parcels data set (2003-2009)
+
+The Beijing leased residential land parcels data set has been made available in the **HSAR** package. There are 1117 observed land parcels, grouped into 111 districts. The data are for most of the districts for which parcel price data was available for the 2003-2009 period; some isolated districs were also excluded.
+
+```{r load_data, echo = TRUE}
+library(sp)
+library(HSAR)
+data(landprice)
+data(landSPDF)
+```
+
+
+
+
+The parcel data as provided are in two objects, a `data.frame` and a `SpatialPointsDataFrame`, which need to be merged and ordered by district ID (obs relate to the original parcel IDs):
+
+```{r merge_data1, echo = TRUE}
+library(sf)
+landprice1 <- st_as_sf(landSPDF)
+landprice1 <- merge(landprice1, landprice, by="obs")
+landprice2 <- landprice1[order(landprice1$district.id.x),]
+```
+
+Categorical variables, such as the year relating to the price, and the district ID, should be specified as `factor` objects, to permit the creation of dummies on-the-fly:
+
+```{r strip_data1, echo = TRUE}
+landprice2$fyear <- factor(landprice2$year + 2003)
+landprice2$f_district.id.x <- factor(landprice2$district.id.x)
+```
+
+Because `formula` objects can include simple functions, such as `log` of variables, we revert pre-computed logs:
+
+```{r strip_data2, echo = TRUE}
+landprice2$price <- exp(landprice2$lnprice)
+landprice2$area <- exp(landprice2$lnarea)
+landprice2$Dcbd <- exp(landprice2$lndcbd)
+landprice2$Dsubway <- exp(landprice2$dsubway)
+landprice2$Dpark <- exp(landprice2$dpark)
+landprice2$Dele <- exp(landprice2$dele)
+```
+
+
+### Parcel-level spatial weights
+
+We use the weights specified in [@dongetal:15], an exponential decay function with a distance threshold of 1.5km; they are stored in a sparse `listw` object. We need to set `zero.policy` because seven parcels have no neighbours at this threshold:
+
+```{r W_weights, echo = TRUE}
+suppressPackageStartupMessages(library(spdep))
+dnb1.5 <- dnearneigh(landprice2, 0, 1500, row.names=row.names(landprice2))
+dists <- nbdists(dnb1.5, st_coordinates(landprice2))
+edists <- lapply(dists, function(x) exp((-((x/1000)^2))/(1.5^2)))
+ozpo <- set.ZeroPolicyOption(TRUE)
+lw <- nb2listw(dnb1.5, glist=edists, style="W")
+library(spatialreg)
+W <- as(lw, "CsparseMatrix")
+trs <- trW(W, m=50)
+```
+
+### Formula objects
+
+For over twenty years, `data.frame` and `formula` objects have defined S and R syntax. Use of update methods allows flexibility and re-use; the `data=` argument points to the object containing the named variables (columns):
+
+```{r form_lm, echo = TRUE}
+form <- log(price) ~ log(area) + log(Dcbd) + log(Dele) + log(Dpark) + log(Dsubway) + 
+  crimerate + popden + fyear
+OLS <- lm(form, data=landprice2)
+```
+
+### Using fitted model objects
+
+There are many standard methods for fitted model objects, especially `print` and `summary` methods, which are not shown here. Let's use Moran's $I$ to test for residual spatial autocorrelation (and/or other mis-specifications):
+
+```{r mI, echo = TRUE}
+lm.morantest(OLS, lw)
+```
+
+### Same framework with spatial models
+
+It makes sense to use the formula/data framework for functions fitting spatial econometrics models, such as SLX; we need a spatial weights `listw` object, qualified by accepting parcels without neighbours:
+
+```{r SLX, echo = TRUE}
+
+SLX <- lmSLX(form, data=landprice2, listw=lw, zero.policy=TRUE)
+```
+
+### SLX residual autocorrelation
+
+The fitted object still inherits from `lm`, so functions and methods expecting such an object will still work. There is still a lot of spatial autocorrelation in the residuals:
+
+```{r mI_SLX, echo = TRUE}
+class(SLX)
+lm.morantest(SLX, lw)
+```
+
+### Impacts: local and global
+
+The SLX model has come into focus recently because of its ease of estimation, and because the coefficients may be treated as direct and indirect impacts, with total impacts calculated by linear combination:
+
+```{r imp_SLX, echo = TRUE}
+imps_SLX <- impacts(SLX)
+imps_SLX
+```
+
+### Maximum likelihood --- error model
+
+The spatial error model (SEM) may be estimated by maximum likelihood (case weights may also be used), here using eigenvalues of the spatial weights to compute the Jacobian [@bivandetal13]. The Hausman test [@RePEc:eee:ecolet:v:101:y:2008:i:3:p:282-284] examines whether the SEM coefficients differ from OLS coefficients:
+
+```{r SEM, echo = TRUE}
+e <- eigenw(lw)
+int <- 1/range(e)
+SEM <- errorsarlm(form, data=landprice2, listw=lw, interval=int, control=list(pre_eig=e), zero.policy=TRUE)
+Hausman.test(SEM)
+```
+
+### GMM estimation of SEM
+
+The **sphet** package [@piras:10] provides a wide range of model fitting options, terming the spatial coefficient on the error $\rho$, rather than $\lambda$, and the other way round for the lag coefficient on the dependent variable:
+
+```{r GMM1, echo = TRUE}
+library(sphet)
+ozpo <- set.ZeroPolicyOption(TRUE)
+GM_SEM <- spreg(form, data=landprice2, listw=lw, model="error")
+```
+
+### ML Durbin SEM
+
+The spatial Durbin error model (SDEM), like SLX, adds the spatially lagged independent variables on the right hand side, and may be estimated by maximum likelihood:
+
+```{r SDEM, echo = TRUE}
+SDEM <- errorsarlm(form, data=landprice2, listw=lw, etype="emixed",
+ interval=int, control=list(pre_eig=e), zero.policy=TRUE)
+Hausman.test(SDEM)
+```
+
+### SDEM impacts
+
+SDEM impacts, like those for SLX, are calculated by linear combination:
+
+```{r imp_SDEM, echo = TRUE}
+imps_SDEM <- spatialreg::impacts(SDEM)
+imps_SDEM
+```
+
+### Maximum likelihood spatial lag model
+
+The spatial lag model (SAR) is estimated using \code{lagsarlm} by maximum likelihood. There is also an LM test for residual autocorrelation:
+
+```{r SAR, echo = TRUE}
+SAR <- lagsarlm(form, data=landprice2, listw=lw, type="lag", interval=int, control=list(pre_eig=e), zero.policy=TRUE)
+digits <- max(5, .Options$digits - 3)
+cat("test value: ", format(signif(SAR$LMtest, digits)), ", p-value: ",
+ format.pval((1 - pchisq(SAR$LMtest, 1)), digits), "\n", sep="")
+```
+
+### SAR impacts
+
+The impacts method for SAR (and SDM) fitted model objects uses simple samples from the multivariate distribution of the coefficients and their covariances for inferences, and uses traces of powers of the spatial weights:
+
+```{r imp_SDM, echo = TRUE}
+spatialreg::impacts(SAR, tr=trs)
+```
+
+
+### GMM estimation of SAR
+
+The **sphet** package [@piras:10] provides a number of ways of fitting this model, calling the coefficient $\lambda$:
+
+```{r GMM2, echo = TRUE}
+library(sphet)
+GM_SAR <- spreg(form, data=landprice2, listw=lw, model="lag")
+```
+
+### GMM SAR impacts
+
+Also works, but we need to chase up interface issues between **sphet** and **spdep**:
+
+```{r imp_GM_SAR, echo = TRUE}
+m <- nrow(GM_SAR$coefficients)
+GM_SAR$coefficients <- drop(GM_SAR$coefficients)
+GM_SAR$coefficients <- GM_SAR$coefficients[c(m, (1:(m-1)))]
+GM_SAR$var <- GM_SAR$var[c(m, (1:(m-1))), c(m, (1:(m-1)))]
+# impacts(GM_SAR, tr=trs)
+```
+
+
+### Spatial lag Durbin model
+
+As with the SLX and SDEM models, the lags of the independent variables are made automatically (this needs revisiting for SLX and SDEM to permit different and possibly multiple matrices to be used):
+
+```{r SDM, echo = TRUE}
+SDM <- lagsarlm(form, data=landprice2, listw=lw, type="mixed", interval=int, control=list(pre_eig=e), zero.policy=TRUE)
+digits <- max(5, .Options$digits - 3)
+cat("test value: ", format(signif(SDM$LMtest, digits)), ", p-value: ",
+ format.pval((1 - pchisq(SDM$LMtest, 1)), digits), "\n", sep="")
+```
+
+### Tests between SLX, SDM and SDEM
+
+We can use Likelihood ratio tests between nesting models
+
+```{r LR1, echo = TRUE}
+cat(capture.output(LR.sarlm(SAR, SDM))[c(7,8,5)], sep="\n")
+cat(capture.output(LR.sarlm(SEM, SDM))[c(7,8,5)], sep="\n")
+cat(capture.output(LR.sarlm(SEM, SDEM))[c(7,8,5)], sep="\n")
+```
+
+### Tests between SLX, SDM and SDEM
+
+```{r LR2, echo = TRUE}
+cat(capture.output(LR.sarlm(SLX, SDM))[c(7,8,5)], sep="\n")
+cat(capture.output(LR.sarlm(SLX, SDEM))[c(7,8,5)], sep="\n")
+```
+
+
+### SDM impacts
+
+Here we'll take samples to use later:
+
+```{r imp_SDM0, echo = TRUE}
+set.seed(1)
+imps <- spatialreg::impacts(SDM, tr=trs, R=2000)
+imps
+```
+
+### Impacts by simple linear algebra
+
+Let's also explore the impacts of the log(area) variable the manual way; the direct impact is the same, the total differs very slightly:
+
+```{r imp_SDM1, echo = TRUE}
+IrW1 <- invIrW(lw, rho=coef(SDM)[1])
+n <- nrow(landprice2)
+S_area <- IrW1 %*% ((diag(n) * coef(SDM)[3]) + (coef(SDM)[16] * W))
+sum(S_area)/n
+sum(diag(S_area))/n
+```
+
+### Total impacts by incremented prediction
+
+If we make a prediction (using GSoC 2015 code by Martin Gubri based on [@thomas-agnanetal:14]) from the fitted model, increment area, and make a new prediction, the mean difference is the total impact:
+
+```{r imp_SDM2, echo = TRUE}
+newdata <- landprice2
+suppressWarnings(p0 <- predict(SDM, newdata=newdata, listw=lw))
+newdata$area <- exp(log(newdata$area)+1)
+suppressWarnings(p1 <- predict(SDM, newdata=newdata, listw=lw))
+mean(p1-p0)
+```
+
+### MCMC spatial Durbin fitting
+
+Following GSoC 2011, parts of the Spatial Econometrics toolbox were translated into R, with default 2500 draws and 500 omitted as burnin:
+
+```{r BSDM, echo = TRUE}
+set.seed(1)
+BSDM <- spBreg_lag(form, data=landprice2, listw=lw, type="Durbin")
+```
+
+## #MCMC impacts
+
+As we already have the draws, we do not need to sample again to be able to infer:
+
+```{r imp_BSDM, echo = TRUE}
+impsB <- spatialreg::impacts(BSDM, tr=trs)
+impsB
+```
+
+### Total impact of log(area)
+
+
+
+
+```{r fig2, echo=TRUE, eval=TRUE}
+plot(density(impsB$sres$total[,1]), lty=4, col="orange", main="log(area) total impacts", ylim=c(0, 10))
+lines(density(imps$sres$total[,1]), lty=3, col="red")
+abline(v=imps$res$total[1], lty=3, col="red")
+abline(v=impsB$res$total[1], lty=4, col="orange")
+abline(v=mean(p1-p0), lty=2, col="blue")
+abline(v=imps_SLX$impacts$total[1], lwd=2, col="green")
+curve(dnorm(x, mean=imps_SLX$impacts$total[1], sd=imps_SLX$se$total[1]), col="green", lwd=2, add=TRUE, from=-0.2, to=0.4)
+legend("topleft", legend=c("BSDM", "SDM (tr)", "SDM (pred)", "SLX"), lty=c(4,3,2,1), col=c("orange", "red", "blue", "green"), lwd=c(1,1,1,2), bty="n", cex=0.8)
+```
+
+
+
+
+
+
+Here we show the sampled distributions from the fitted ML model, the MCMC total impacts (red and orange dotted lines), the blue point total impact from prediction difference, and the point estimate and implied distrubution from the SLX model (in green).
+
+
+
+
+### General Nested Model (GNM)
+
+The GNM is a SAC (both lag and error coefficients, aka SARAR) with spatially lagged independent variables. It suffers from the same problems as all SARAR - a tendency for the two coefficients to flip
+
+```{r GNM, echo = TRUE}
+GNM <- sacsarlm(form, data=landprice2, listw=lw, type="sacmixed", interval1=int, interval2=int,
+ control=list(pre_eig1=e, pre_eig2=e), zero.policy=TRUE)
+```
+
+### Impacts
+
+SAC and GNS fitted models also need impacts computed:
+
+```{r imp_GNM, echo = TRUE}
+spatialreg::impacts(GNM, tr=trs)
+```
+
+### Tests between GNM, SDM and SDEM
+
+```{r LR3, echo = TRUE}
+cat(capture.output(LR.sarlm(SDM, GNM))[c(7,8,5)], sep="\n")
+cat(capture.output(LR.sarlm(SDEM, GNM))[c(7,8,5)], sep="\n")
+```
+
+
+### SessionInfo
+
+```{r si, echo = FALSE}
+sessionInfo()
+```
+
+

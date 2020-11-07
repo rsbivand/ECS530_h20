@@ -1576,7 +1576,7 @@ div.tocify {
 </div>
 <div id="required-current-contributed-cran-packages" class="section level3">
 <h3>Required current contributed CRAN packages:</h3>
-<p>I am running R 3.6.1, with recent <code>update.packages()</code>.</p>
+<p>I am running R 4.0.3, with recent <code>update.packages()</code>.</p>
 <pre class="r"><code>needed &lt;- c(&quot;igraph&quot;, &quot;tmap&quot;, &quot;spdep&quot;, &quot;spData&quot;, &quot;sp&quot;, &quot;gstat&quot;, &quot;sf&quot;, &quot;spatstat&quot;, &quot;spatstat.data&quot;)</code></pre>
 </div>
 <div id="script" class="section level3">
@@ -1912,7 +1912,7 @@ head(pol_pres15[, c(1, 4, 6)])</code></pre>
 <pre class="r"><code>suppressPackageStartupMessages(library(spdep))
 system.time(nb_q &lt;- poly2nb(pol_pres15, queen=TRUE))</code></pre>
 <pre><code>##    user  system elapsed 
-##   1.719   0.047   1.860</code></pre>
+##   1.702   0.045   1.956</code></pre>
 <p>The object returned is very sparse; the print method reports asymmetric objects and objects with observations with no neighbours.</p>
 <pre class="r"><code>nb_q</code></pre>
 <pre><code>## Neighbour list object:
@@ -1937,7 +1937,7 @@ plot(nb_q, coords=st_coordinates(coords), add=TRUE, points=FALSE, lwd=0.5)</code
   nb_sf_q1 &lt;- poly2nb(pol_pres15, queen=TRUE, foundInBox=fB1a)
 })</code></pre>
 <pre><code>##    user  system elapsed 
-##   1.044   0.006   1.084</code></pre>
+##   1.094   0.067   1.298</code></pre>
 <p>The two neighbour objects are the same:</p>
 <pre class="r"><code>all.equal(nb_q, nb_sf_q1, check.attributes=FALSE)</code></pre>
 <pre><code>## [1] TRUE</code></pre>
