@@ -1581,7 +1581,7 @@ div.tocify {
 </div>
 <div id="script" class="section level3">
 <h3>Script</h3>
-<p>Script and data at <a href="https://github.com/rsbivand/ECS530_h19/raw/master/ECS530_VI.zip" class="uri">https://github.com/rsbivand/ECS530_h19/raw/master/ECS530_VI.zip</a>. Download to suitable location, unzip and use as basis.</p>
+<p>Script and data at <a href="https://github.com/rsbivand/ECS530_h20/raw/master/ECS530_VI.zip" class="uri">https://github.com/rsbivand/ECS530_h20/raw/master/ECS530_VI.zip</a>. Download to suitable location, unzip and use as basis.</p>
 </div>
 <div id="schedule" class="section level2">
 <h2>Schedule</h2>
@@ -1912,7 +1912,7 @@ head(pol_pres15[, c(1, 4, 6)])</code></pre>
 <pre class="r"><code>suppressPackageStartupMessages(library(spdep))
 system.time(nb_q &lt;- poly2nb(pol_pres15, queen=TRUE))</code></pre>
 <pre><code>##    user  system elapsed 
-##   1.702   0.045   1.956</code></pre>
+##   1.617   0.039   1.975</code></pre>
 <p>The object returned is very sparse; the print method reports asymmetric objects and objects with observations with no neighbours.</p>
 <pre class="r"><code>nb_q</code></pre>
 <pre><code>## Neighbour list object:
@@ -1937,7 +1937,7 @@ plot(nb_q, coords=st_coordinates(coords), add=TRUE, points=FALSE, lwd=0.5)</code
   nb_sf_q1 &lt;- poly2nb(pol_pres15, queen=TRUE, foundInBox=fB1a)
 })</code></pre>
 <pre><code>##    user  system elapsed 
-##   1.094   0.067   1.298</code></pre>
+##   1.047   0.004   1.155</code></pre>
 <p>The two neighbour objects are the same:</p>
 <pre class="r"><code>all.equal(nb_q, nb_sf_q1, check.attributes=FALSE)</code></pre>
 <pre><code>## [1] TRUE</code></pre>

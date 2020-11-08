@@ -33,7 +33,7 @@ needed <- c("sphet", "spatialreg", "spdep", "spData", "sf", "HSAR", "sp")
 
 ### Script
 
-Script and data at https://github.com/rsbivand/ECS530_h19/raw/master/ECS530_preVIII.zip. Download to suitable location, unzip and use as basis.
+Script and data at https://github.com/rsbivand/ECS530_h20/raw/master/ECS530_preVIII.zip. Download to suitable location, unzip and use as basis.
 
 ### Schedule
 

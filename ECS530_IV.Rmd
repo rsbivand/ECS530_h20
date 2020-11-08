@@ -33,7 +33,7 @@ needed <- c("mapview", "ggplot2", "cartography", "tmap", "colorspace", "RColorBr
 
 ### Script
 
-Script and data at https://github.com/rsbivand/ECS530_h19/raw/master/ECS530_IV.zip. Download to suitable location, unzip and use as basis.
+Script and data at https://github.com/rsbivand/ECS530_h20/raw/master/ECS530_IV.zip. Download to suitable location, unzip and use as basis.
 
 ## Schedule
 
