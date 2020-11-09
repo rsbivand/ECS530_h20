@@ -33,7 +33,7 @@ needed <- c("rgdal", "RSQLite", "units", "gdistance", "Matrix", "igraph", "raste
 
 ### Script
 
-Script and data at https://github.com/rsbivand/ECS530_h20/raw/master/ECS530_II.zip. Download to suitable location, unzip and use as basis.
+Script and data at https://github.com/rsbivand/ECS530_h20/raw/main/ECS530_II.zip. Download to suitable location, unzip and use as basis.
 
 ## Schedule
 

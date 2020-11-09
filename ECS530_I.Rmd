@@ -33,7 +33,7 @@ needed <- c("raster", "stars", "abind", "terra", "elevatr", "sp", "mapview", "sf
 
 ### Script
 
-Script and data at https://github.com/rsbivand/ECS530_h20/raw/master/ECS530_I.zip. Download to suitable location, unzip and use as basis.
+Script and data at https://github.com/rsbivand/ECS530_h20/raw/main/ECS530_I.zip. Download to suitable location, unzip and use as basis.
 
 ## Schedule
 
